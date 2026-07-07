@@ -1,1 +1,10 @@
-<h1 align=center>Hello World</h1>
+<button onclick="callApi()">Say Hello</button>
+<p id="result"></p>
+
+<script>
+async function callApi() {
+  const response = await fetch("https://web-lty6.onrender.com/api/hello?name=Joe");
+  const data = await response.json();
+  document.getElementById("result").innerText = data.greeting;
+}
+</script>
