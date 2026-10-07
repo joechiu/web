@@ -12,3 +12,38 @@
 | Algorithmic-bias research | You have practical validation experience, but not deep academic/statistical bias modelling | **Moderate / developable** |
 | Inclusive digital experiences | Your validation platform can be positioned toward this, but direct UX/accessibility experience isn't your strongest area | **Moderate** |
 | Responsible AI governance/frameworks | You have implemented practical controls, but formal AI governance frameworks are not a major part of your current CV | **Moderate / developable** |
+
+## Tool4 Architecture
+```text
+                    AI Generated Content
+                             │
+                             ▼
+                 ┌─────────────────────┐
+                 │ Evidence Validation │
+                 └──────────┬──────────┘
+                            │
+             ┌──────────────┼──────────────┐
+             ▼              ▼              ▼
+       Rule Validation   LLM Validation   Security
+             │              │              │
+             └──────────────┼──────────────┘
+                            ▼
+                 ┌─────────────────────┐
+                 │ Fairness / Bias     │
+                 │ Evaluation          │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │ Accessibility /     │
+                 │ Language Evaluation │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │ Explainable Result  │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                    Human Review
+```
