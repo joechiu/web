@@ -1,3 +1,39 @@
+
+## IBM Project Architecture
+```text
+                   AI Generated Content
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │ Evidence Validation │
+                 └──────────┬──────────┘
+                            │
+             ┌──────────────┼──────────────┐
+             ▼              ▼              ▼
+     Rule Validation   LLM Validation   Security
+             │              │              │
+             └──────────────┼──────────────┘
+                            ▼
+                 ┌─────────────────────┐
+                 │ Fairness / Bias     │
+                 │ Evaluation          │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │ Accessibility /     │
+                 │ Language Evaluation │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │ Explainable Result  │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                    Human Review
+```
+### IBM project requirement:
 | IBM project requirement | Your experience | Fit |
 |---|---|---|
 | Design AI solutions promoting inclusion/accessibility/fairness | Tool4 AI validation platform, configurable validation rules, language/CEFR checking, evidence validation | **Strong** |
@@ -58,54 +94,3 @@
 - business rules
 - human approval
 
-## Tool4 Architecture
-```text
-                    AI Generated Content
-                             │
-                             ▼
-                 ┌─────────────────────┐
-                 │ Evidence Validation │
-                 └──────────┬──────────┘
-                            │
-             ┌──────────────┼──────────────┐
-             ▼              ▼              ▼
-       Rule Validation   LLM Validation   Security
-             │              │              │
-             └──────────────┼──────────────┘
-                            ▼
-                 ┌─────────────────────┐
-                 │ Fairness / Bias     │
-                 │ Evaluation          │
-                 └──────────┬──────────┘
-                            │
-                            ▼
-                 ┌─────────────────────┐
-                 │ Accessibility /     │
-                 │ Language Evaluation │
-                 └──────────┬──────────┘
-                            │
-                            ▼
-                 ┌─────────────────────┐
-                 │ Explainable Result  │
-                 └──────────┬──────────┘
-                            │
-                            ▼
-                    Human Review
-```
-### Tool4 validation covers things such as:
-- approved evidence
-- evidence references
-- compliance
-- grammar
-- language
-- completeness
-- quality
-- CEFR
-- banned words
-- regex patterns
-- PII-related detection
-- minimum/maximum length
-- business rules
-- human approval
-
-## 
