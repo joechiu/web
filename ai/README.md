@@ -49,6 +49,9 @@
 | Inclusive digital experiences | Tool4 validation platform can be positioned toward this, but direct UX/accessibility experience isn't Tool4 strongest area | **Moderate** |
 | Responsible AI governance/frameworks | Tool4 have implemented practical controls, but formal AI governance frameworks are not a major part of Tool4 | **Moderate / developable** |
 
+![IBM Requirement](./images/ibm-project.jpg)
+
+
 ## Tool4 Architecture
 ```text
                       Input
