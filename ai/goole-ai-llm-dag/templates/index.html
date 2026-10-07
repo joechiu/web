@@ -1,0 +1,2685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gemini LLM DAG</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+
+    <!-- Syntax highlighting -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css"
+    >
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/highlight.min.js"></script>
+
+    <!-- Markdown parser -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/marked@latest/marked.min.js">
+    </script>
+    
+    <!-- Sanitize generated HTML -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/dompurify@latest/dist/purify.min.js">
+    </script>
+    
+    <!-- Syntax highlighting -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css"
+    >
+    
+    <script
+        src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/highlight.min.js">
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0b0f14;
+            --panel: #111720;
+            --panel-2: #151c26;
+            --border: #273140;
+            --border-light: #344052;
+
+            --text: #e7edf5;
+            --muted: #8d9aad;
+            --muted-2: #657286;
+
+            --accent: #6ea8fe;
+            --accent-2: #8b5cf6;
+
+            --success: #42d392;
+            --warning: #f2c94c;
+            --danger: #ff6b6b;
+
+            --shadow:
+                0 12px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at top center,
+                    rgba(80, 110, 160, 0.10),
+                    transparent 35%
+                ),
+                var(--bg);
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            line-height: 1.5;
+        }
+
+        button,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .container {
+            width: min(1200px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 60px;
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+
+            margin-bottom: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(110, 168, 254, 0.18),
+                    rgba(139, 92, 246, 0.18)
+                );
+
+            font-size: 21px;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text p {
+            margin: 3px 0 0;
+
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .health {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 7px 11px;
+
+            border: 1px solid var(--border);
+            border-radius: 999px;
+
+            background: rgba(17, 23, 32, 0.8);
+
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .health-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: var(--muted-2);
+        }
+
+        .health-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(66, 211, 146, 0.55);
+        }
+
+        .health-dot.offline {
+            background: var(--danger);
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.45);
+        }
+
+        /* =========================================================
+           GENERIC PANELS
+        ========================================================= */
+
+        .panel {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(21, 28, 38, 0.96),
+                    rgba(14, 19, 27, 0.96)
+                );
+
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+
+            padding: 17px 20px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            margin: 0;
+
+            font-size: 14px;
+            font-weight: 650;
+            letter-spacing: 0.01em;
+        }
+
+        .panel-subtitle {
+            margin: 3px 0 0;
+
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* =========================================================
+           PROMPT
+        ========================================================= */
+
+        .prompt-panel {
+            margin-bottom: 22px;
+        }
+
+        .prompt-body {
+            padding: 20px;
+        }
+
+        .prompt-textarea {
+            width: 100%;
+            min-height: 150px;
+
+            resize: vertical;
+
+            padding: 15px 16px;
+
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+
+            outline: none;
+
+            background: #0b1017;
+            color: var(--text);
+
+            font-size: 14px;
+            line-height: 1.6;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .prompt-textarea::placeholder {
+            color: #586578;
+        }
+
+        .prompt-textarea:focus {
+            border-color: rgba(110, 168, 254, 0.7);
+
+            box-shadow:
+                0 0 0 3px rgba(110, 168, 254, 0.10);
+        }
+
+.prompt-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.prompt-footer .shortcut {
+    margin-right: auto;
+}
+
+        .shortcut {
+            color: var(--muted-2);
+            font-size: 12px;
+        }
+
+        .shortcut kbd {
+            padding: 3px 6px;
+
+            border: 1px solid var(--border);
+            border-bottom-color: var(--border-light);
+            border-radius: 5px;
+
+            background: #0b1017;
+
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 11px;
+        }
+
+        .run-button {
+            min-width: 125px;
+
+            padding: 10px 17px;
+
+            border: 1px solid rgba(110, 168, 254, 0.35);
+            border-radius: 9px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f8ee8,
+                    #7654d9
+                );
+
+            color: white;
+
+            font-size: 13px;
+            font-weight: 650;
+
+            box-shadow:
+                0 7px 20px rgba(82, 105, 205, 0.20);
+
+            transition:
+                transform 0.15s ease,
+                opacity 0.15s ease;
+        }
+
+        .run-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .run-button:active {
+            transform: translateY(0);
+        }
+
+        .run-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+            transform: none;
+        }
+
+        .run-button.loading {
+            position: relative;
+        }
+
+        /* =========================================================
+           DAG PIPELINE
+        ========================================================= */
+
+        .dag-panel {
+            margin-bottom: 22px;
+        }
+
+        .dag-body {
+            padding: 22px 20px;
+        }
+
+        .pipeline {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .node-wrapper {
+            display: flex;
+            align-items: center;
+
+            flex: 1;
+            min-width: 155px;
+        }
+
+        .node-card {
+            width: 100%;
+
+            min-height: 112px;
+
+            padding: 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: #0d131b;
+
+            transition:
+                border-color 0.25s ease,
+                background 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .node-card.active {
+            border-color: rgba(110, 168, 254, 0.75);
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(48, 70, 105, 0.28),
+                    rgba(13, 19, 27, 1)
+                );
+
+            box-shadow:
+                0 0 0 1px rgba(110, 168, 254, 0.10),
+                0 0 24px rgba(110, 168, 254, 0.10);
+
+            transform: translateY(-2px);
+        }
+
+        .node-card.completed {
+            border-color: rgba(66, 211, 146, 0.38);
+        }
+
+        .node-card.error {
+            border-color: rgba(255, 107, 107, 0.55);
+        }
+
+        .node-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+
+            margin-bottom: 12px;
+        }
+
+        .node-name {
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .node-status {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #3a4555;
+        }
+
+        .node-status.active {
+            background: var(--accent);
+            box-shadow: 0 0 10px rgba(110, 168, 254, 0.65);
+        }
+
+        .node-status.completed {
+            background: var(--success);
+        }
+
+        .node-status.error {
+            background: var(--danger);
+        }
+
+        .node-model {
+            color: var(--muted);
+            font-size: 11px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .node-time {
+            margin-top: 8px;
+
+            color: var(--muted-2);
+            font-size: 11px;
+        }
+
+        .arrow {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #536175;
+            font-size: 18px;
+        }
+
+        /* =========================================================
+           ANSWER
+        ========================================================= */
+
+        .answer-panel {
+            margin-bottom: 22px;
+        }
+
+        .answer-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-button {
+            padding: 6px 10px;
+
+            border: 1px solid var(--border);
+            border-radius: 7px;
+
+            background: #101722;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+            transition:
+                color 0.15s ease,
+                border-color 0.15s ease;
+        }
+
+        .copy-button:hover {
+            color: var(--text);
+            border-color: var(--border-light);
+        }
+
+        .answer-body {
+            padding: 22px 24px;
+        }
+
+        .answer {
+            min-height: 120px;
+
+            color: #dce5f0;
+
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+        .answer.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 160px;
+
+            color: var(--muted-2);
+
+            text-align: center;
+        }
+
+        /* Markdown */
+
+        .answer h1,
+        .answer h2,
+        .answer h3,
+        .answer h4 {
+            margin-top: 1.35em;
+            margin-bottom: 0.55em;
+
+            color: #f2f6fb;
+
+            line-height: 1.3;
+        }
+
+        .answer h1 {
+            font-size: 24px;
+        }
+
+        .answer h2 {
+            font-size: 20px;
+        }
+
+        .answer h3 {
+            font-size: 17px;
+        }
+
+        .answer p {
+            margin: 0 0 1em;
+        }
+
+        .answer ul,
+        .answer ol {
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+
+            padding-left: 24px;
+        }
+
+        .answer li {
+            margin-bottom: 5px;
+        }
+
+        .answer blockquote {
+            margin: 1em 0;
+            padding: 10px 15px;
+
+            border-left: 3px solid var(--accent);
+
+            background: rgba(110, 168, 254, 0.06);
+
+            color: #b8c5d6;
+        }
+
+        .answer a {
+            color: #8dbbff;
+        }
+
+        .answer strong {
+            color: #f0f5fb;
+        }
+
+        .answer code:not(pre code) {
+            padding: 2px 5px;
+
+            border: 1px solid var(--border);
+            border-radius: 5px;
+
+            background: #0a0f15;
+
+            color: #d8e4f2;
+
+            font-size: 0.9em;
+        }
+
+        .answer pre {
+            margin: 1em 0;
+
+            overflow-x: auto;
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            background: #080c11;
+
+            box-shadow:
+                inset 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .answer pre code {
+            display: block;
+
+            padding: 15px 16px;
+
+            font-family:
+                "Cascadia Code",
+                "Fira Code",
+                Consolas,
+                monospace;
+
+            font-size: 12px;
+            line-height: 1.65;
+        }
+
+        .answer table {
+            width: 100%;
+
+            margin: 1em 0;
+
+            border-collapse: collapse;
+
+            overflow: hidden;
+        }
+
+        .answer th,
+        .answer td {
+            padding: 9px 11px;
+
+            border: 1px solid var(--border);
+
+            text-align: left;
+        }
+
+        .answer th {
+            background: #151d28;
+            color: #eef3f8;
+        }
+
+        .answer td {
+            background: rgba(11, 16, 23, 0.6);
+        }
+
+        .answer hr {
+            margin: 1.5em 0;
+
+            border: 0;
+            border-top: 1px solid var(--border);
+        }
+
+        /* =========================================================
+           USAGE
+        ========================================================= */
+
+        .usage-panel {
+            margin-bottom: 22px;
+        }
+
+        .usage-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 12px;
+
+            padding: 20px;
+        }
+
+        .usage-card {
+            padding: 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            background: #0d131b;
+        }
+
+        .usage-label {
+            color: var(--muted);
+
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .usage-value {
+            margin-top: 5px;
+
+            color: #eef4fa;
+
+            font-size: 21px;
+            font-weight: 650;
+        }
+
+        /* =========================================================
+           NODE DETAILS
+        ========================================================= */
+
+        .details-panel {
+            margin-bottom: 22px;
+        }
+
+        .details-body {
+            padding: 14px 20px 20px;
+        }
+
+        .details-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            background: #0d131b;
+
+            overflow: hidden;
+        }
+
+        .detail summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+
+            padding: 12px 14px;
+
+            cursor: pointer;
+
+            color: #dce5ef;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            list-style: none;
+        }
+
+        .detail summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .detail summary::after {
+            content: "›";
+
+            color: var(--muted);
+
+            font-size: 18px;
+
+            transition: transform 0.15s ease;
+        }
+
+        .detail[open] summary::after {
+            transform: rotate(90deg);
+        }
+
+        .detail-content {
+            padding: 0 14px 14px;
+
+            border-top: 1px solid var(--border);
+        }
+
+        .detail-stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 8px;
+
+            margin-top: 12px;
+        }
+
+        .detail-stat {
+            padding: 9px;
+
+            border-radius: 7px;
+
+            background: #111822;
+        }
+
+        .detail-stat-label {
+            color: var(--muted-2);
+            font-size: 10px;
+        }
+
+        .detail-stat-value {
+            margin-top: 2px;
+
+            color: #dce5ef;
+            font-size: 12px;
+        }
+
+        .detail-output {
+            margin-top: 12px;
+
+            padding: 12px;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            background: #080c11;
+
+            color: #aebbc9;
+
+            font-family:
+                "Cascadia Code",
+                "Fira Code",
+                Consolas,
+                monospace;
+
+            font-size: 11px;
+            line-height: 1.6;
+
+            white-space: pre-wrap;
+            word-break: break-word;
+
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* =========================================================
+           ERROR
+        ========================================================= */
+
+        .error-box {
+            display: none;
+
+            margin-bottom: 22px;
+
+            padding: 14px 16px;
+
+            border: 1px solid rgba(255, 107, 107, 0.40);
+            border-radius: 10px;
+
+            background: rgba(255, 107, 107, 0.07);
+
+            color: #ffb3b3;
+
+            font-size: 13px;
+        }
+
+        .error-box.visible {
+            display: block;
+        }
+
+        .error-title {
+            margin-bottom: 4px;
+
+            color: #ff8585;
+
+            font-weight: 650;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        .footer {
+            margin-top: 28px;
+
+            color: var(--muted-2);
+
+            font-size: 11px;
+
+            text-align: center;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 800px) {
+            .container {
+                width: min(100% - 20px, 1200px);
+                padding-top: 18px;
+            }
+
+            .header {
+                align-items: flex-start;
+            }
+
+            .usage-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .detail-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .pipeline {
+                padding-bottom: 10px;
+            }
+
+            .node-wrapper {
+                min-width: 145px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .brand-text p {
+                display: none;
+            }
+
+            .health {
+                font-size: 0;
+            }
+
+            .health-dot {
+                width: 9px;
+                height: 9px;
+            }
+
+            .prompt-footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .run-button {
+                width: 100%;
+            }
+
+            .usage-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .usage-value {
+                font-size: 18px;
+            }
+
+            .answer-body {
+                padding: 18px;
+            }
+        }
+        .secondary-btn {
+            padding: 10px 18px;
+            border: 1px solid #3a3f4b;
+            border-radius: 8px;
+            background: #20242d;
+            color: #c9ced8;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .secondary-btn:hover {
+            background: #2a2f39;
+            color: #ffffff;
+            border-color: #555c6b;
+        }
+        
+        .secondary-btn:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                ✦
+            </div>
+
+            <div class="brand-text">
+                <h1>Gemini LLM DAG</h1>
+                <p>Sequential multi-node LLM execution pipeline</p>
+            </div>
+
+        </div>
+
+        <div class="health">
+            <span id="healthDot" class="health-dot"></span>
+            <span id="healthText">Checking API...</span>
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         ERROR
+    ========================================================== -->
+
+    <div id="errorBox" class="error-box">
+
+        <div class="error-title">
+            Request failed
+        </div>
+
+        <div id="errorMessage"></div>
+
+    </div>
+
+
+    <!-- =========================================================
+         PROMPT
+    ========================================================== -->
+
+    <section class="panel prompt-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2 class="panel-title">Prompt</h2>
+                <p class="panel-subtitle">
+                    Enter a question or task for the Gemini DAG.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="prompt-body">
+
+            <textarea
+                id="prompt"
+                class="prompt-textarea"
+                placeholder="Ask something...&#10;&#10;Example: Explain how vector databases work and compare the main indexing approaches."
+                spellcheck="true"
+            >Explain how vector databases work and compare the main indexing approaches.</textarea>
+
+            <div class="prompt-footer">
+
+                <div class="shortcut">
+                    Press
+                    <kbd>Ctrl</kbd>
+                    +
+                    <kbd>Enter</kbd>
+                    to run
+                </div>
+
+                <button id="runButton" class="run-button" type="button">
+                    Run DAG
+                </button>
+
+                <button id="clearBtn" class="run-button" type="button">
+                    Clear
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         DAG
+    ========================================================== -->
+
+    <section class="panel dag-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2 class="panel-title">Execution Pipeline</h2>
+                <p class="panel-subtitle">
+                    Planner → Research → Analysis → Review → Final
+                </p>
+            </div>
+
+        </div>
+
+        <div class="dag-body">
+
+            <div class="pipeline">
+
+                <!-- Planner -->
+
+                <div class="node-wrapper">
+
+                    <div
+                        id="node-planner"
+                        class="node-card"
+                    >
+
+                        <div class="node-top">
+
+                            <span class="node-name">
+                                Planner
+                            </span>
+
+                            <span
+                                id="status-planner"
+                                class="node-status"
+                            ></span>
+
+                        </div>
+
+                        <div
+                            id="model-planner"
+                            class="node-model"
+                        >
+                            Waiting
+                        </div>
+
+                        <div
+                            id="time-planner"
+                            class="node-time"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="arrow">→</div>
+
+
+                <!-- Research -->
+
+                <div class="node-wrapper">
+
+                    <div
+                        id="node-research"
+                        class="node-card"
+                    >
+
+                        <div class="node-top">
+
+                            <span class="node-name">
+                                Research
+                            </span>
+
+                            <span
+                                id="status-research"
+                                class="node-status"
+                            ></span>
+
+                        </div>
+
+                        <div
+                            id="model-research"
+                            class="node-model"
+                        >
+                            Waiting
+                        </div>
+
+                        <div
+                            id="time-research"
+                            class="node-time"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="arrow">→</div>
+
+
+                <!-- Analysis -->
+
+                <div class="node-wrapper">
+
+                    <div
+                        id="node-analysis"
+                        class="node-card"
+                    >
+
+                        <div class="node-top">
+
+                            <span class="node-name">
+                                Analysis
+                            </span>
+
+                            <span
+                                id="status-analysis"
+                                class="node-status"
+                            ></span>
+
+                        </div>
+
+                        <div
+                            id="model-analysis"
+                            class="node-model"
+                        >
+                            Waiting
+                        </div>
+
+                        <div
+                            id="time-analysis"
+                            class="node-time"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="arrow">→</div>
+
+
+                <!-- Review -->
+
+                <div class="node-wrapper">
+
+                    <div
+                        id="node-review"
+                        class="node-card"
+                    >
+
+                        <div class="node-top">
+
+                            <span class="node-name">
+                                Review
+                            </span>
+
+                            <span
+                                id="status-review"
+                                class="node-status"
+                            ></span>
+
+                        </div>
+
+                        <div
+                            id="model-review"
+                            class="node-model"
+                        >
+                            Waiting
+                        </div>
+
+                        <div
+                            id="time-review"
+                            class="node-time"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="arrow">→</div>
+
+
+                <!-- Final -->
+
+                <div class="node-wrapper">
+
+                    <div
+                        id="node-final"
+                        class="node-card"
+                    >
+
+                        <div class="node-top">
+
+                            <span class="node-name">
+                                Final
+                            </span>
+
+                            <span
+                                id="status-final"
+                                class="node-status"
+                            ></span>
+
+                        </div>
+
+                        <div
+                            id="model-final"
+                            class="node-model"
+                        >
+                            Waiting
+                        </div>
+
+                        <div
+                            id="time-final"
+                            class="node-time"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         ANSWER
+    ========================================================== -->
+
+    <section class="panel answer-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2 class="panel-title">Answer</h2>
+                <p class="panel-subtitle">
+                    Planner, research, analysis and review results.
+                </p>
+            </div>
+
+            <div class="answer-toolbar">
+
+                <button
+                    id="copyButton"
+                    class="copy-button"
+                    type="button"
+                >
+                    Copy
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="answer-body">
+
+            <article
+                id="answer"
+                class="answer empty"
+            >
+                Run the DAG to generate an answer.
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         USAGE
+    ========================================================== -->
+
+    <section class="panel usage-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2 class="panel-title">Token Usage</h2>
+                <p class="panel-subtitle">
+                    Aggregated usage reported by the DAG nodes.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="usage-grid">
+
+            <div class="usage-card">
+
+                <div class="usage-label">
+                    Input Tokens
+                </div>
+
+                <div
+                    id="inputTokens"
+                    class="usage-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="usage-card">
+
+                <div class="usage-label">
+                    Output Tokens
+                </div>
+
+                <div
+                    id="outputTokens"
+                    class="usage-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="usage-card">
+
+                <div class="usage-label">
+                    Total Tokens
+                </div>
+
+                <div
+                    id="totalTokens"
+                    class="usage-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="usage-card">
+
+                <div class="usage-label">
+                    Reported Total
+                </div>
+
+                <div
+                    id="reportedTokens"
+                    class="usage-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         NODE DETAILS
+    ========================================================== -->
+
+    <section class="panel details-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2 class="panel-title">Node Details</h2>
+                <p class="panel-subtitle">
+                    Inspect model, token usage, execution time and output.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="details-body">
+
+            <div
+                id="nodeDetails"
+                class="details-list"
+            >
+
+                <details class="detail">
+
+                    <summary>
+                        Planner
+                    </summary>
+
+                    <div class="detail-content">
+
+                        <div class="detail-stats">
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Model
+                                </div>
+                                <div
+                                    id="detail-model-planner"
+                                    class="detail-stat-value"
+                                >
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Input
+                                </div>
+                                <div
+                                    id="detail-input-planner"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Output
+                                </div>
+                                <div
+                                    id="detail-output-planner"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Time
+                                </div>
+                                <div
+                                    id="detail-time-planner"
+                                    class="detail-stat-value"
+                                >
+                                    0s
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div
+                            id="detail-text-planner"
+                            class="detail-output"
+                        >No output yet.</div>
+
+                    </div>
+
+                </details>
+
+
+                <details class="detail">
+
+                    <summary>
+                        Research
+                    </summary>
+
+                    <div class="detail-content">
+
+                        <div class="detail-stats">
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Model
+                                </div>
+                                <div
+                                    id="detail-model-research"
+                                    class="detail-stat-value"
+                                >
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Input
+                                </div>
+                                <div
+                                    id="detail-input-research"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Output
+                                </div>
+                                <div
+                                    id="detail-output-research"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Time
+                                </div>
+                                <div
+                                    id="detail-time-research"
+                                    class="detail-stat-value"
+                                >
+                                    0s
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div
+                            id="detail-text-research"
+                            class="detail-output"
+                        >No output yet.</div>
+
+                    </div>
+
+                </details>
+
+
+                <details class="detail">
+
+                    <summary>
+                        Analysis
+                    </summary>
+
+                    <div class="detail-content">
+
+                        <div class="detail-stats">
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Model
+                                </div>
+                                <div
+                                    id="detail-model-analysis"
+                                    class="detail-stat-value"
+                                >
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Input
+                                </div>
+                                <div
+                                    id="detail-input-analysis"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Output
+                                </div>
+                                <div
+                                    id="detail-output-analysis"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Time
+                                </div>
+                                <div
+                                    id="detail-time-analysis"
+                                    class="detail-stat-value"
+                                >
+                                    0s
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div
+                            id="detail-text-analysis"
+                            class="detail-output"
+                        >No output yet.</div>
+
+                    </div>
+
+                </details>
+
+
+                <details class="detail">
+
+                    <summary>
+                        Review
+                    </summary>
+
+                    <div class="detail-content">
+
+                        <div class="detail-stats">
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Model
+                                </div>
+                                <div
+                                    id="detail-model-review"
+                                    class="detail-stat-value"
+                                >
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Input
+                                </div>
+                                <div
+                                    id="detail-input-review"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Output
+                                </div>
+                                <div
+                                    id="detail-output-review"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Time
+                                </div>
+                                <div
+                                    id="detail-time-review"
+                                    class="detail-stat-value"
+                                >
+                                    0s
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div
+                            id="detail-text-review"
+                            class="detail-output"
+                        >No output yet.</div>
+
+                    </div>
+
+                </details>
+
+
+                <details class="detail">
+
+                    <summary>
+                        Final
+                    </summary>
+
+                    <div class="detail-content">
+
+                        <div class="detail-stats">
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Model
+                                </div>
+                                <div
+                                    id="detail-model-final"
+                                    class="detail-stat-value"
+                                >
+                                    —
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Input
+                                </div>
+                                <div
+                                    id="detail-input-final"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Output
+                                </div>
+                                <div
+                                    id="detail-output-final"
+                                    class="detail-stat-value"
+                                >
+                                    0
+                                </div>
+                            </div>
+
+                            <div class="detail-stat">
+                                <div class="detail-stat-label">
+                                    Time
+                                </div>
+                                <div
+                                    id="detail-time-final"
+                                    class="detail-stat-value"
+                                >
+                                    0s
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div
+                            id="detail-text-final"
+                            class="detail-output"
+                        >No output yet.</div>
+
+                    </div>
+
+                </details>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <footer class="footer">
+        Gemini LLM DAG · FastAPI
+    </footer>
+
+</div>
+
+
+<script>
+
+    /*
+     * ============================================================
+     * DOM references
+     * ============================================================
+     */
+
+    const promptInput = document.getElementById("prompt");
+    const runButton = document.getElementById("runButton");
+    const clearBtn = document.getElementById("clearBtn");
+
+    const answerElement = document.getElementById("answer");
+    const copyButton = document.getElementById("copyButton");
+
+    const errorBox = document.getElementById("errorBox");
+    const errorMessage = document.getElementById("errorMessage");
+
+    const healthDot = document.getElementById("healthDot");
+    const healthText = document.getElementById("healthText");
+
+
+    /*
+     * ============================================================
+     * DAG node configuration
+     * ============================================================
+     */
+
+    const nodeNames = [
+        "planner",
+        "research",
+        "analysis",
+        "review",
+        "final"
+    ];
+
+
+    /*
+     * ============================================================
+     * Helpers
+     * ============================================================
+     */
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function formatNumber(value) {
+        const number = Number(value || 0);
+
+        return number.toLocaleString();
+    }
+
+
+    function formatSeconds(value) {
+        const seconds = Number(value || 0);
+
+        return `${seconds.toFixed(2)}s`;
+    }
+
+
+    /*
+     * ============================================================
+     * Error handling
+     * ============================================================
+     */
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorBox.classList.add("visible");
+    }
+
+
+    function clearError() {
+        errorMessage.textContent = "";
+        errorBox.classList.remove("visible");
+    }
+
+
+    /*
+     * ============================================================
+     * Health check
+     * ============================================================
+     */
+
+    async function checkHealth() {
+
+        try {
+
+            const response = await fetch("/health", {
+                method: "GET",
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("Health check failed");
+            }
+
+            const data = await response.json();
+
+            if (data.status === "ok") {
+
+                healthDot.classList.remove("offline");
+                healthDot.classList.add("online");
+
+                healthText.textContent = "API online";
+
+            } else {
+
+                healthDot.classList.remove("online");
+                healthDot.classList.add("offline");
+
+                healthText.textContent = "API unavailable";
+            }
+
+        } catch (error) {
+
+            healthDot.classList.remove("online");
+            healthDot.classList.add("offline");
+
+            healthText.textContent = "API unavailable";
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * Reset DAG display
+     * ============================================================
+     */
+
+    function resetNodes() {
+
+        nodeNames.forEach((name) => {
+
+            const card = document.getElementById(`node-${name}`);
+            const status = document.getElementById(`status-${name}`);
+            const model = document.getElementById(`model-${name}`);
+            const time = document.getElementById(`time-${name}`);
+
+            card.classList.remove(
+                "active",
+                "completed",
+                "error"
+            );
+
+            status.classList.remove(
+                "active",
+                "completed",
+                "error"
+            );
+
+            model.textContent = "Waiting";
+            time.textContent = "—";
+        });
+    }
+
+
+    /*
+     * ============================================================
+     * Visual DAG progress
+     *
+     * NOTE:
+     * The current FastAPI /dag endpoint is synchronous.
+     * Therefore this is a visual indication while the request
+     * is running, not real server-side streaming progress.
+     * ============================================================
+     */
+
+    let visualProgressTimer = null;
+
+    function startVisualProgress() {
+
+        resetNodes();
+
+        let index = 0;
+
+        visualProgressTimer = setInterval(() => {
+
+            if (index > 0) {
+
+                const previous = nodeNames[index - 1];
+
+                document
+                    .getElementById(`node-${previous}`)
+                    .classList.remove("active");
+
+                document
+                    .getElementById(`node-${previous}`)
+                    .classList.add("completed");
+
+                document
+                    .getElementById(`status-${previous}`)
+                    .classList.remove("active");
+
+                document
+                    .getElementById(`status-${previous}`)
+                    .classList.add("completed");
+            }
+
+            if (index < nodeNames.length) {
+
+                const name = nodeNames[index];
+
+                document
+                    .getElementById(`node-${name}`)
+                    .classList.add("active");
+
+                document
+                    .getElementById(`status-${name}`)
+                    .classList.add("active");
+
+                document
+                    .getElementById(`model-${name}`)
+                    .textContent = "Running...";
+
+                index++;
+
+            } else {
+
+                clearInterval(visualProgressTimer);
+                visualProgressTimer = null;
+            }
+
+        }, 900);
+    }
+
+
+    function finishVisualProgress() {
+
+        if (visualProgressTimer) {
+            clearInterval(visualProgressTimer);
+            visualProgressTimer = null;
+        }
+
+        nodeNames.forEach((name) => {
+
+            document
+                .getElementById(`node-${name}`)
+                .classList.remove("active");
+
+            document
+                .getElementById(`node-${name}`)
+                .classList.add("completed");
+
+            document
+                .getElementById(`status-${name}`)
+                .classList.remove("active");
+
+            document
+                .getElementById(`status-${name}`)
+                .classList.add("completed");
+        });
+    }
+
+
+    function failVisualProgress() {
+
+        if (visualProgressTimer) {
+            clearInterval(visualProgressTimer);
+            visualProgressTimer = null;
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * Render answer as Markdown
+     * ============================================================
+     */
+      
+      function renderMarkdown(markdown) {
+      
+          if (!markdown) {
+              answerElement.className = "answer empty";
+              answerElement.textContent =
+                  "The DAG returned an empty answer.";
+              return;
+          }
+      
+          /*
+           * Make sure Markdown libraries are actually available.
+           */
+          if (
+              typeof marked === "undefined" ||
+              typeof DOMPurify === "undefined"
+          ) {
+              console.error(
+                  "Markdown libraries are not loaded.",
+                  {
+                      marked: typeof marked,
+                      DOMPurify: typeof DOMPurify
+                  }
+              );
+      
+              answerElement.className = "answer";
+      
+              /*
+               * Display a useful error rather than silently
+               * showing raw Markdown.
+               */
+              answerElement.innerHTML = `
+                  <div style="
+                      padding: 14px;
+                      border: 1px solid #6b3b3b;
+                      border-radius: 8px;
+                      background: rgba(255,107,107,0.08);
+                      color: #ffb3b3;
+                  ">
+                      Markdown renderer could not be loaded.
+                      Check the browser console and network connection.
+                  </div>
+              `;
+      
+              return;
+          }
+      
+          try {
+      
+              /*
+               * Convert Markdown -> HTML.
+               */
+              const rawHtml = marked.parse(String(markdown), {
+                  gfm: true,
+                  breaks: true
+              });
+      
+              /*
+               * Sanitize HTML before inserting it into the page.
+               */
+              const safeHtml = DOMPurify.sanitize(rawHtml);
+      
+              answerElement.className = "answer";
+              answerElement.innerHTML = safeHtml;
+      
+              /*
+               * Syntax highlighting.
+               */
+              if (typeof hljs !== "undefined") {
+      
+                  answerElement
+                      .querySelectorAll("pre code")
+                      .forEach((block) => {
+      
+                          hljs.highlightElement(block);
+      
+                      });
+              }
+      
+          } catch (error) {
+      
+              console.error(
+                  "Markdown rendering failed:",
+                  error
+              );
+      
+              answerElement.className = "answer";
+      
+              /*
+               * Last-resort display.
+               */
+              answerElement.textContent = String(markdown);
+          }
+      }
+
+function renderPipelineAnswer(nodes, finalAnswer) {
+
+    nodes = nodes || {};
+
+    const sections = [
+        {
+            name: "Plan",
+            text: nodes.planner?.text
+        },
+        {
+            name: "Research",
+            text: nodes.research?.text
+        },
+        {
+            name: "Analysis",
+            text: nodes.analysis?.text
+        },
+        {
+            name: "Review",
+            text: nodes.review?.text
+        },
+        {
+            name: "Final",
+            text: nodes.final?.text || finalAnswer
+        }
+    ];
+
+    const markdown = sections
+        .filter(section => section.text)
+        .map(section => {
+            return [
+                `## ${section.name}`,
+                "",
+                section.text.trim()
+            ].join("\n");
+        })
+        .join("\n\n---\n\n");
+
+    renderMarkdown(markdown);
+}
+
+    /*
+     * ============================================================
+     * Render usage
+     * ============================================================
+     */
+
+    function renderUsage(usage) {
+
+        usage = usage || {};
+
+        document.getElementById("inputTokens").textContent =
+            formatNumber(usage.input_tokens);
+
+        document.getElementById("outputTokens").textContent =
+            formatNumber(usage.output_tokens);
+
+        document.getElementById("totalTokens").textContent =
+            formatNumber(usage.total_tokens);
+
+        document.getElementById("reportedTokens").textContent =
+            formatNumber(usage.reported_total_tokens);
+    }
+
+
+    /*
+     * ============================================================
+     * Render node details
+     * ============================================================
+     */
+
+    function renderNodeDetails(nodes) {
+
+        nodes = nodes || {};
+
+        nodeNames.forEach((name) => {
+
+            const node = nodes[name];
+
+            if (!node) {
+                return;
+            }
+
+            const modelElement =
+                document.getElementById(`detail-model-${name}`);
+
+            const inputElement =
+                document.getElementById(`detail-input-${name}`);
+
+            const outputElement =
+                document.getElementById(`detail-output-${name}`);
+
+            const timeElement =
+                document.getElementById(`detail-time-${name}`);
+
+            const textElement =
+                document.getElementById(`detail-text-${name}`);
+
+            modelElement.textContent =
+                node.model || "—";
+
+            inputElement.textContent =
+                formatNumber(node.input_tokens);
+
+            outputElement.textContent =
+                formatNumber(node.output_tokens);
+
+            timeElement.textContent =
+                formatSeconds(node.elapsed_seconds);
+
+            textElement.textContent =
+                node.text || "No output.";
+        });
+    }
+
+
+    /*
+     * ============================================================
+     * Render DAG node summary
+     * ============================================================
+     */
+
+    function renderNodeSummary(nodes) {
+
+        nodes = nodes || {};
+
+        nodeNames.forEach((name) => {
+
+            const node = nodes[name];
+
+            if (!node) {
+                return;
+            }
+
+            const modelElement =
+                document.getElementById(`model-${name}`);
+
+            const timeElement =
+                document.getElementById(`time-${name}`);
+
+            const card =
+                document.getElementById(`node-${name}`);
+
+            const status =
+                document.getElementById(`status-${name}`);
+
+            modelElement.textContent =
+                node.model || "Unknown model";
+
+            timeElement.textContent =
+                formatSeconds(node.elapsed_seconds);
+
+            card.classList.remove(
+                "active",
+                "error"
+            );
+
+            card.classList.add("completed");
+
+            status.classList.remove(
+                "active",
+                "error"
+            );
+
+            status.classList.add("completed");
+        });
+    }
+
+
+    /*
+     * ============================================================
+     * Run DAG
+     * ============================================================
+     */
+
+    async function runDAG() {
+
+        const prompt = promptInput.value.trim();
+
+        if (!prompt) {
+
+            showError("Please enter a prompt.");
+
+            promptInput.focus();
+
+            return;
+        }
+
+        clearError();
+
+        runButton.disabled = true;
+        runButton.textContent = "Running...";
+
+        /*
+         * Clear previous result.
+         */
+
+        answerElement.className = "answer empty";
+        answerElement.textContent = "Running DAG...";
+
+        document.getElementById("inputTokens").textContent = "0";
+        document.getElementById("outputTokens").textContent = "0";
+        document.getElementById("totalTokens").textContent = "0";
+        document.getElementById("reportedTokens").textContent = "0";
+
+        startVisualProgress();
+
+        try {
+
+            const response = await fetch("/dag", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    prompt: prompt
+                })
+
+            });
+
+
+            /*
+             * Try to parse JSON regardless of HTTP status so
+             * FastAPI error messages can be displayed.
+             */
+
+            let data = null;
+
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = null;
+            }
+
+
+            if (!response.ok) {
+
+                const message =
+                    data?.detail ||
+                    `Request failed with HTTP ${response.status}.`;
+
+                throw new Error(message);
+            }
+
+
+            /*
+             * Render answer.
+             */
+
+            // renderMarkdown(data.answer);
+            renderPipelineAnswer(data.nodes, data.answer);
+
+
+            /*
+             * Render token usage.
+             */
+
+            renderUsage(data.usage);
+
+
+            /*
+             * Render node information.
+             */
+
+            renderNodeDetails(data.nodes);
+            renderNodeSummary(data.nodes);
+
+
+            finishVisualProgress();
+
+        } catch (error) {
+
+            failVisualProgress();
+
+            showError(
+                error?.message ||
+                "An unexpected error occurred."
+            );
+
+            answerElement.className = "answer empty";
+
+            answerElement.textContent =
+                "The DAG request failed.";
+
+            /*
+             * Mark currently active nodes as failed.
+             */
+
+            nodeNames.forEach((name) => {
+
+                const card =
+                    document.getElementById(`node-${name}`);
+
+                const status =
+                    document.getElementById(`status-${name}`);
+
+                if (card.classList.contains("active")) {
+
+                    card.classList.remove("active");
+                    card.classList.add("error");
+
+                    status.classList.remove("active");
+                    status.classList.add("error");
+                }
+            });
+
+        } finally {
+
+            runButton.disabled = false;
+            runButton.textContent = "Run DAG";
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * Copy rendered answer
+     * ============================================================
+     */
+
+    async function copyAnswer() {
+
+        const text = answerElement.innerText.trim();
+
+        if (!text) {
+            return;
+        }
+
+        try {
+
+            await navigator.clipboard.writeText(text);
+
+            const originalText = copyButton.textContent;
+
+            copyButton.textContent = "Copied";
+
+            setTimeout(() => {
+                copyButton.textContent = originalText;
+            }, 1500);
+
+        } catch (error) {
+
+            /*
+             * Fallback for browsers where clipboard API is
+             * unavailable.
+             */
+
+            const textarea =
+                document.createElement("textarea");
+
+            textarea.value = text;
+
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+
+            document.body.appendChild(textarea);
+
+            textarea.select();
+
+            try {
+                document.execCommand("copy");
+
+                copyButton.textContent = "Copied";
+
+                setTimeout(() => {
+                    copyButton.textContent = "Copy";
+                }, 1500);
+
+            } finally {
+
+                document.body.removeChild(textarea);
+            }
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * Keyboard shortcut
+     * ============================================================
+     */
+
+    promptInput.addEventListener("keydown", (event) => {
+
+        if (
+            event.key === "Enter" &&
+            event.ctrlKey
+        ) {
+
+            event.preventDefault();
+
+            if (!runButton.disabled) {
+                runDAG();
+            }
+        }
+    });
+
+
+    /*
+     * ============================================================
+     * Button events
+     * ============================================================
+     */
+
+    runButton.addEventListener(
+        "click",
+        runDAG
+    );
+
+    clearBtn.addEventListener("click", () => {
+        promptInput.value = "";
+        promptInput.focus();
+    });
+
+    copyButton.addEventListener(
+        "click",
+        copyAnswer
+    );
+
+
+    /*
+     * ============================================================
+     * Initialisation
+     * ============================================================
+     */
+
+    checkHealth();
+
+    /*
+     * Refresh API status periodically.
+     */
+
+    setInterval(
+        checkHealth,
+        10000
+    );
+
+</script>
+
+</body>
+</html>
+
