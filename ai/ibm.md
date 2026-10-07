@@ -34,7 +34,7 @@
                     Human Review
 ```
 ### IBM project requirement:
-| IBM project requirement | Your experience | Fit |
+| IBM project requirement | Tool4 experience | Fit |
 |---|---|---|
 | Design AI solutions promoting inclusion/accessibility/fairness | Tool4 AI validation platform, configurable validation rules, language/CEFR checking, evidence validation | **Strong** |
 | Reduce AI bias | LLM validation of language, evidence, compliance, quality; deterministic rules + LLM validation | **Strong foundation** |
@@ -94,3 +94,33 @@
 - business rules
 - human approval
 
+## Genuine gap
+I would not tell IBM that you already have deep expertise in all aspects of algorithmic fairness.
+There are some areas where your experience is adjacent rather than direct.
+Algorithmic bias
+For example, formal bias analysis could involve:
+- demographic parity
+- equal opportunity
+- equalised odds
+- disparate impact
+- subgroup performance
+- fairness metrics
+- statistical significance
+- bias evaluation datasets
+
+## Accessibility is another area to strengthen
+Tool4 current experience gives you some relevant material through:
+- CEFR
+- language validation
+- content quality
+- inclusive language potential
+- configurable validation rules
+But accessibility engineering could also involve:
+- WCAG
+- ARIA
+- screen readers
+- keyboard navigation
+- colour contrast
+- alternative text
+- cognitive accessibility
+- assistive technologies
