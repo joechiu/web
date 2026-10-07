@@ -47,3 +47,20 @@
                             ▼
                     Human Review
 ```
+### Tool4 validation covers things such as:
+- approved evidence
+- evidence references
+- compliance
+- grammar
+- language
+- completeness
+- quality
+- CEFR
+- banned words
+- regex patterns
+- PII-related detection
+- minimum/maximum length
+- business rules
+- human approval
+
+## 
