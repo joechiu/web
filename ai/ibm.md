@@ -15,6 +15,51 @@
 
 ## Tool4 Architecture
 ```text
+                      Input
+                         │
+                         ▼
+                ┌──────────────────┐
+                │ Evidence / Rules │
+                └────────┬─────────┘
+                         │
+                         ▼
+                ┌──────────────────┐
+                │ Fast Rule        │
+                │ Validation       │
+                └────────┬─────────┘
+                         │
+             ┌───────────┼───────────┐
+             ▼                       ▼
+    Configurable Rules     Unified LLM Validation  
+             │                       │
+             └───────────┬───────────┘
+                         │
+                         ▼
+                ┌──────────────────┐
+                │ Decision Router  │
+                └────────┬─────────┘
+                         │
+                         ▼
+              Human Review / Approval
+```
+### Tool4 validation covers things such as:
+- approved evidence
+- evidence references
+- compliance
+- grammar
+- language
+- completeness
+- quality
+- CEFR
+- banned words
+- regex patterns
+- PII-related detection
+- minimum/maximum length
+- business rules
+- human approval
+
+## Tool4 Architecture
+```text
                     AI Generated Content
                              │
                              ▼
