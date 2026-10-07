@@ -1,0 +1,39 @@
+{
+  "draft_output": "Our customer support team is available Monday to Friday from 9:00 a.m. to 5:00 p.m.",
+  "mandatory_structure": [
+    "Introduction",
+    "Contact Information",
+    "Next Steps"
+  ],
+  "approved_evidence_references": [
+    {
+      "id": "EVID-001",
+      "description": "Customer support is available Monday to Friday from 9:00 a.m. to 5:00 p.m.",
+      "approved": true
+    }
+  ],
+  "language_level_requirements": [
+    "Plain English",
+    "B1 minimum",
+    "B2 maximum"
+  ],
+  "tone_rules": [
+    "Professional",
+    "Clear",
+    "Helpful",
+    "Neutral"
+  ],
+  "compliance_rules": [
+    "Do not make claims that are not supported by approved evidence."
+  ],
+  "formatting_rules": [
+    "Use clear paragraphs.",
+    "Use complete sentences.",
+    "Use readable formatting."
+  ],
+  "business_policy_rules": [
+    "Content must align with approved business policy.",
+    "Customer-facing content must use professional language."
+  ],
+  "preview_status": ""
+}

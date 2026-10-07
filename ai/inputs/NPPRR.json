@@ -1,0 +1,118 @@
+{
+    "draft_output": "Executive Summary\n\nThe document was prepared for review.\n\nValidation Findings\n\nThe document was prepared for validation.\n\nConclusion\n\nThe document is available for review.",
+    "decision": "R",
+    "description": "REVIEW_REQUIRED — One or more downstream validation nodes identified material issues requiring human assessment.",
+    "decision_result": {
+        "decision": "R",
+        "fast_outcome": "P",
+        "configurable_outcome": "P",
+        "llm_outcome": "R",
+        "findings": [
+            "The draft contains claims about preparation for review and validation that require human assessment."
+        ],
+        "compliance": {
+            "score": 3,
+            "mandatory_violation": false,
+            "findings": [
+                "The draft contains claims that could not be fully verified."
+            ]
+        },
+        "grounding": {
+            "unsupported_claims": [
+                "The document was prepared for review.",
+                "The document was prepared for validation."
+            ],
+            "missing_or_invalid_references": [
+                "No approved evidence was provided to substantiate these claims."
+            ],
+            "findings": [
+                "The draft contains statements that require additional evidence."
+            ]
+        },
+        "reason": "REVIEW_REQUIRED — One or more downstream validation nodes identified material issues requiring human assessment.",
+        "hard_stop": false,
+        "awaiting_pre_validation": false
+    },
+    "validation_output": {
+        "decision": "R",
+        "validation_result": {
+            "decision": "R",
+            "fast_outcome": "P",
+            "configurable_outcome": "P",
+            "llm_outcome": "R"
+        },
+        "rule_findings": [],
+        "llm_validation_findings": [
+            "The draft contains claims about preparation for review and validation that require human assessment."
+        ],
+        "quality_scores": {
+            "grammar_and_tone": 4.0,
+            "grammar_and_tone_percentage": 100.0,
+            "language_level_readability": 4.0,
+            "language_level_readability_percentage": 100.0,
+            "completeness": 3.0,
+            "completeness_percentage": 75.0,
+            "quality_and_logic": 3.0,
+            "quality_and_logic_percentage": 75.0,
+            "total_score": 14.0,
+            "maximum_score": 16,
+            "percentage": 87.5
+        },
+        "quality_percentage": 87.5,
+        "compliance_findings": {
+            "score": 3,
+            "mandatory_violation": false,
+            "findings": [
+                "The draft contains claims that could not be fully verified."
+            ]
+        },
+        "evidence_grounding_findings": {
+            "unsupported_claims": [
+                "The document was prepared for review.",
+                "The document was prepared for validation."
+            ],
+            "missing_or_invalid_references": [
+                "No approved evidence was provided to substantiate these claims."
+            ],
+            "findings": [
+                "The draft contains statements that require additional evidence."
+            ]
+        },
+        "warnings": [],
+        "decision_reason": "REVIEW_REQUIRED — One or more downstream validation nodes identified material issues requiring human assessment.",
+        "suggested_edits": [
+            "Provide approved evidence supporting the statements about preparation for review and validation."
+        ],
+        "proposed_final_draft": "Executive Summary\n\nThe document was prepared for review.\n\nValidation Findings\n\nThe document was prepared for validation.\n\nConclusion\n\nThe document is available for review.",
+        "final_permitted_draft": "Executive Summary\n\nThe document was prepared for review.\n\nValidation Findings\n\nThe document was prepared for validation.\n\nConclusion\n\nThe document is available for review.",
+        "outcome_trace": {
+            "outcomes": [
+                null,
+                "P",
+                "P",
+                "R",
+                "R"
+            ],
+            "node_outcomes": {
+                "inputs_validator": null,
+                "fast_rule_validator": "P",
+                "configurable_rules": "P",
+                "unified_llm_validator": "R",
+                "decision_router": "R"
+            },
+            "node_outcome_labels": {
+                "inputs_validator": "NONE",
+                "fast_rule_validator": "PASS",
+                "configurable_rules": "PASS",
+                "unified_llm_validator": "REVIEW_REQUIRED",
+                "decision_router": "REVIEW_REQUIRED"
+            },
+            "final_outcome": "R",
+            "final_label": "REVIEW_REQUIRED"
+        },
+        "status": "Awaiting for approval",
+        "preview_outcome": null,
+        "awaiting_pre_validation": false
+    },
+    "validation_fail_report": null
+}

@@ -1,0 +1,23 @@
+{
+  "draft_output": "Executive Summary\n\nThe document was prepared for review and validation. This document provides a detailed summary of the validation process, scope, findings, and conclusion. The information is provided for assessment and review purposes.\n\nValidation Findings\n\nThe validation process was completed according to the applicable review procedure. The findings are documented for reference and provide information about the validation activity performed. The document provides sufficient context for the intended assessment.\n\nConclusion\n\nThe document is available for review. Further assessment or approval can be completed through the applicable review process.",
+  "approved_evidence_references": [
+    "The document was prepared for review and validation.",
+    "The validation process was completed according to the applicable review procedure.",
+    "The findings are documented for reference.",
+    "The document is available for review.",
+    "Further assessment or approval can be completed through the applicable review process."
+  ],
+  "language_level_requirements": ["clear and professional"],
+  "tone_rules": [],
+  "compliance_rules": [
+    "MANDATORY: The draft must contain the exact phrase 'APPROVED FINAL VERSION'. Failure to include this phrase is a mandatory compliance violation and must result in BLOCK."
+  ],
+  "formatting_rules": [],
+  "business_policy_rules": [],
+  "mandatory_structure": [],
+  "preview_status": "C",
+  "banned_words": [],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 100
+}

@@ -1,0 +1,43 @@
+{
+  "draft_output": "Executive Summary\n\nThe scheduled review was completed successfully.\n\nValidation Findings\n\nThe approved evidence confirms that the scheduled review was completed successfully.\n\nConclusion\n\nThe scheduled review was completed successfully.",
+  "preview_status": "C",                                                                                                                                                                           "mandatory_structure": [
+    "Executive Summary",
+    "Validation Findings",
+    "Conclusion"
+  ],
+  "enable_pii": true,
+  "enable_regex": true,
+  "enable_length": true,
+  "enable_banned_words": true,
+  "regex_patterns": [],
+  "banned_words": [],
+  "min_length": 1,
+  "max_length": 100,
+  "evidence": "The approved evidence confirms that the scheduled review was completed successfully.",
+  "preview_status": "C",
+  "expected_outcome_trace": {
+    "outcomes": [
+      "C",
+      "S",
+      "W",
+      "P",
+      "R"
+    ],
+    "node_outcomes": {
+      "inputs_validator": "C",
+      "fast_rule_validator": "S",
+      "configurable_rules": "W",
+      "unified_llm_validator": "P",
+      "decision_router": "R"
+    },
+    "node_outcome_labels": {
+      "inputs_validator": "CLEAR",
+      "fast_rule_validator": "SKIPPED",
+      "configurable_rules": "WARNING",
+      "unified_llm_validator": "PASS",
+      "decision_router": "REVIEW_REQUIRED"
+    },
+    "final_outcome": "R",
+    "final_label": "REVIEW_REQUIRED"
+  }
+}

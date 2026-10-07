@@ -1,0 +1,21 @@
+{
+  "draft_output": "Executive Summary\n\nThe document was prepared for review and validation.\n\nValidation Findings\n\nThe validation process was completed according to the applicable review procedure.\n\nConclusion\n\nThe document is available for review.",
+  "approved_evidence_references": [
+    "The document was prepared for review and validation.",
+    "The validation process was completed according to the applicable review procedure.",
+    "The document is available for review."
+  ],
+  "language_level_requirements": ["clear and professional"],
+  "tone_rules": [],
+  "compliance_rules": [],
+  "formatting_rules": [],
+  "business_policy_rules": [],
+  "mandatory_structure": [],
+  "preview_status": "C",
+  "banned_words": [
+    "validation"
+  ],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 50000
+}

@@ -1,0 +1,72 @@
+{
+  "draft_output": "You clearly failed to follow the instructions. Fix this immediately or your account may be affected. Don't bother contacting us again because there's nothing we can do.",
+"approved_evidence_references": [
+    {
+      "id": "EVID-001",
+      "description": "Customer support is available Monday to Friday from 9:00 a.m. to 5:00 p.m.",
+      "approved": true
+    },
+    {
+      "id": "EVID-002",
+      "description": "Customers can contact the support team through the approved support channel.",
+      "approved": true
+    },
+    {
+      "id": "EVID-003",
+      "description": "Customer support response times may vary depending on the complexity of the request.",
+      "approved": true
+    },
+    {
+      "id": "EVID-004",
+      "description": "The support team can assist customers with account-related questions.",
+      "approved": true
+    },
+    {
+      "id": "EVID-005",
+      "description": "The support team can assist customers with supported product questions.",
+      "approved": true
+    },
+    {
+      "id": "EVID-006",
+      "description": "Customer-facing communications must use clear, professional, and helpful language.",
+      "approved": true
+    }
+  ],
+  "language_level_requirements": [
+    "Plain English",
+    "B1 minimum",
+    "B2 maximum"
+  ],
+  "tone_rules": [
+    "Professional",
+    "Clear",
+    "Helpful",
+    "Neutral",
+    "Do not use aggressive language",
+    "Do not use informal slang",
+    "Do not use overly technical language",
+    "Do not make misleading claims"
+  ],
+  "compliance_rules": [
+    "Do not include unsupported regulatory or legal claims.",
+    "Do not include confidential or sensitive customer information.",
+    "Do not make claims that are not supported by approved evidence.",
+    "Do not provide guarantees unless explicitly supported by approved policy."
+  ],
+  "formatting_rules": [
+    "Use clear paragraphs.",
+    "Use complete sentences.",
+    "Use readable formatting."
+  ],
+  "business_policy_rules": [
+    "Content must align with approved business policy.",
+    "Only approved evidence may be used for factual claims.",
+    "Customer-facing content must use professional language."
+  ],
+  "mandatory_structure": [],
+  "preview_status": "C",
+  "banned_words": [],
+  "regex_patterns": [],
+  "min_length": 10,
+  "max_length": 50000
+}
