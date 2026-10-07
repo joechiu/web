@@ -93,6 +93,7 @@
 - minimum/maximum length
 - business rules
 - human approval
+![Tool4 Workflow](./images/tool4.png)
 
 ## Genuine gap
 I would not tell IBM that Tool4 already have deep expertise in all aspects of algorithmic fairness.
