@@ -44,10 +44,10 @@
 | AI model integration | Azure AI / Foundry, Prompt Flow, model connections, LLM workflows | **Strong** |
 | AI workflow engineering | Python DAGs, Prompt Flow, Tool1/Tool4, routing and orchestration | **Very strong** |
 | AI platform engineering | Azure ML environments, managed endpoints, deployments, ACR, Managed Identity/RBAC, IaC | **Very strong** |
-| Accessibility / diverse communities | Your CEFR/language validation work gives you a relevant technical foundation, but not extensive direct accessibility research | **Moderate / developable** |
-| Algorithmic-bias research | You have practical validation experience, but not deep academic/statistical bias modelling | **Moderate / developable** |
-| Inclusive digital experiences | Your validation platform can be positioned toward this, but direct UX/accessibility experience isn't your strongest area | **Moderate** |
-| Responsible AI governance/frameworks | You have implemented practical controls, but formal AI governance frameworks are not a major part of your current CV | **Moderate / developable** |
+| Accessibility / diverse communities | Tool4 CEFR/language validation work gives a relevant technical foundation, but not extensive direct accessibility research | **Moderate / developable** |
+| Algorithmic-bias research | Tool4 have practical validation experience, but not deep academic/statistical bias modelling | **Moderate / developable** |
+| Inclusive digital experiences | Tool4 validation platform can be positioned toward this, but direct UX/accessibility experience isn't Tool4 strongest area | **Moderate** |
+| Responsible AI governance/frameworks | Tool4 have implemented practical controls, but formal AI governance frameworks are not a major part of Tool4 | **Moderate / developable** |
 
 ## Tool4 Architecture
 ```text
@@ -95,8 +95,8 @@
 - human approval
 
 ## Genuine gap
-I would not tell IBM that you already have deep expertise in all aspects of algorithmic fairness.
-There are some areas where your experience is adjacent rather than direct.
+I would not tell IBM that Tool4 already have deep expertise in all aspects of algorithmic fairness.
+There are some areas where Tool4 experience is adjacent rather than direct.
 Algorithmic bias
 For example, formal bias analysis could involve:
 - demographic parity
@@ -109,7 +109,7 @@ For example, formal bias analysis could involve:
 - bias evaluation datasets
 
 ## Accessibility is another area to strengthen
-Tool4 current experience gives you some relevant material through:
+Tool4 current experience gives some relevant material through:
 - CEFR
 - language validation
 - content quality
