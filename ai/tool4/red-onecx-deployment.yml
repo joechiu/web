@@ -1,0 +1,20 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+name: red
+endpoint_name: onecx-tool4-api
+model:
+  path: .
+
+environment:
+  azureml:ok5-tool1-flow@latest
+
+# instance_type: Standard_B2ms
+instance_type: Standard_DS2_v2
+
+instance_count: 1
+request_settings:
+  request_timeout_ms: 180000
+  max_concurrent_requests_per_instance: 1
+
+environment_variables:
+  PRT_CONFIG_OVERRIDE: deployment.subscription_id=815f7fcd-2bf5-4083-8da4-41747b02e57f,deployment.resource_group=rg-delme-australiaeast-iac-001,deployment.workspace_name=ops-ws-5608
+

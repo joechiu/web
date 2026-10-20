@@ -1,0 +1,319 @@
+$schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
+
+inputs:
+
+  draft_output:
+    type: string
+
+  approved_evidence_references:
+    type: list
+    default: []
+
+  language_level_requirements:
+    type: list
+    default: []
+
+  tone_rules:
+    type: list
+    default: []
+
+  compliance_rules:
+    type: list
+    default: []
+
+  formatting_rules:
+    type: list
+    default: []
+
+  business_policy_rules:
+    type: list
+    default: []
+
+  mandatory_structure:
+    type: list
+    default: []
+
+  preview_status:
+    type: string
+    default: ""
+
+  banned_words:
+    type: list
+    default: []
+
+  regex_patterns:
+    type: list
+    default: []
+
+  min_length:
+    type: int
+    default: 1
+
+  max_length:
+    type: int
+    default: 50000
+
+outputs:
+
+  draft:
+    type: string
+    reference: ${inputs.draft_output}
+
+  decision:
+    type: string
+    reference: ${decision_router.output.decision}
+
+  description:
+    type: string
+    reference: ${tool4_validation_output.output.decision_reason}
+
+  inputs_validator:
+    type: object
+    reference: ${inputs_validator.output}
+
+  fast_rule_validator:
+    type: object
+    reference: ${fast_rule_validator.output}
+
+  configurable_rule_validator:
+    type: object
+    reference: ${configurable_rules.output}
+
+  # llm_prompt:
+  #   type: object
+  #   reference: ${unified_llm_validator.output}
+
+  unified_llm_result:
+    type: object
+    reference: ${unified_llm_result.output}
+
+  decision_router_result:
+    type: object
+    reference: ${decision_router.output}
+
+  tool4_validation_output:
+    type: object
+    reference: ${tool4_validation_output.output}
+
+  validation_fail_report:
+    type: object
+    reference: ${fail_report.output}
+
+nodes:
+
+  # 1. Input / preview validation
+  - name: inputs_validator
+    type: python
+
+    source:
+      type: code
+      path: ./nodes/inputs_validator.py
+
+    inputs:
+      preview_status: ${inputs.preview_status}
+
+  # 2.0 Deterministic fast validation
+  - name: fast_rule_validator
+    type: python
+
+    source:
+      type: code
+      path: ./nodes/fast_rule_validator.py
+
+    inputs:
+      draft_output: ${inputs.draft_output}
+      mandatory_structure: ${inputs.mandatory_structure}
+      preview_status: ${inputs.preview_status}
+      enable_length: true
+
+  - name: fast_gate
+    type: python
+
+    source:
+      type: code
+      path: ./nodes/gate.py
+
+    inputs:
+      fast_result:
+        ${fast_rule_validator.output}
+
+  # 2.1 Configurable deterministic validation
+  - name: configurable_rules
+    type: python
+
+    source:
+      type: code
+      path: ./nodes/configurable_rules.py
+
+    activate:
+      when: ${fast_gate.output}
+      is: "P"
+
+    inputs:
+
+      draft_output:
+        ${inputs.draft_output}
+
+      enable_pii: true
+      enable_regex: true
+      enable_length: true
+      enable_banned_words: true
+
+      regex_patterns:
+        ${inputs.regex_patterns}
+
+      banned_words:
+        ${inputs.banned_words}
+
+      min_length:
+        ${inputs.min_length}
+
+      max_length:
+        ${inputs.max_length}
+
+      fast_result:
+        ${fast_rule_validator.output}
+
+  # 3.1 LLM validation
+  - name: unified_llm_validator
+    type: prompt
+
+    source:
+      type: code
+      path: ./prompts/unified_llm_validator.jinja2
+
+    activate:
+      when: ${fast_gate.output}
+      is: "P"
+
+    inputs:
+
+      draft_output:
+        ${inputs.draft_output}
+
+      approved_evidence_references:
+        ${inputs.approved_evidence_references}
+
+      language_level_requirements:
+        ${inputs.language_level_requirements}
+
+      tone_rules:
+        ${inputs.tone_rules}
+
+      compliance_rules:
+        ${inputs.compliance_rules}
+
+      formatting_rules:
+        ${inputs.formatting_rules}
+
+      business_policy_rules:
+        ${inputs.business_policy_rules}
+
+      fast_outcome:
+        ${fast_rule_validator.output.outcome}
+
+      configurable_outcome:
+        ${configurable_rules.output.outcome}
+
+  # 3.2 Normalize the LLM result
+  - name: unified_llm_result
+    type: python
+
+    source:
+      type: code
+      path: ./nodes/unified_llm_validator.py
+
+    activate:
+      when: ${fast_gate.output}
+      is: "P"
+
+    inputs:
+
+      connection: 
+        dac-ai-connection
+
+      model: 
+        gpt-4o
+
+      prompt:
+        ${unified_llm_validator.output}
+
+      fast_result:
+        ${fast_rule_validator.output}
+
+      configurable_result:
+        ${configurable_rules.output}
+
+      draft_output:
+        ${inputs.draft_output}
+
+      approved_evidence_references:
+        ${inputs.approved_evidence_references}
+
+      compliance_rules:
+        ${inputs.compliance_rules}
+
+  # 4. Final decision
+  - name: decision_router
+    type: python
+
+    source:
+      type: code
+      path: ./nodes/decision_router.py
+
+    inputs:
+
+      inputs_result:
+        ${inputs_validator.output}
+
+      fast_result:
+        ${fast_rule_validator.output}
+
+      configurable_result:
+        ${configurable_rules.output}
+
+      llm_result:
+        ${unified_llm_result.output}
+
+  # Validation output
+  - name: tool4_validation_output
+    type: python
+
+    source:
+      type: code
+      path: ./nodes/tool4_validation_output.py
+
+    inputs:
+
+      decision_result:
+        ${decision_router.output}
+
+      configurable_result:
+        ${configurable_rules.output}
+
+      llm_result:
+        ${unified_llm_result.output}
+
+      inputs_result:
+        ${inputs_validator.output}
+
+      fast_result:
+        ${fast_rule_validator.output}
+
+      draft_output:
+        ${inputs.draft_output}
+
+  # Validation fail report
+  - name: fail_report
+    type: python
+
+    source:
+      type: code
+      path: ./nodes/return_fail_report.py
+
+    inputs:
+
+      validation_result:
+        ${tool4_validation_output.output}
+
+

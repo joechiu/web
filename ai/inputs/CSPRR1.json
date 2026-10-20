@@ -1,0 +1,17 @@
+{
+  "draft_output": "Executive Summary\n\nThe document was prepared for review.\n\nValidation Findings\n\nAll applicable compliance requirements were satisfied.\n\nConclusion\n\nThe document is available for review.",
+  "approved_evidence_references": [],
+  "language_level_requirements": [""],
+  "tone_rules": [],
+  "compliance_rules": [
+    "Claims of compliance must be supported by approved evidence."
+  ],
+  "formatting_rules": [],
+  "business_policy_rules": [],
+  "mandatory_structure": [],
+  "preview_status": "C",
+  "banned_words": [],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 50000
+}

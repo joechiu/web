@@ -1,0 +1,19 @@
+{
+  "draft_output": "Executive Summary\n\nThe document contains a prohibited statement and does not satisfy the mandatory validation requirement.\n\nValidation Findings\n\nThe document was prepared for review and contains the word forbidden.\n\nConclusion\n\nThe document requires further assessment.",
+  "approved_evidence_references": [],
+  "language_level_requirements": ["clear and professional"],
+  "tone_rules": [],
+  "compliance_rules": [
+    "MANDATORY: The draft must contain the exact phrase 'APPROVED FINAL VERSION'. Failure to include this phrase is a mandatory compliance violation and must result in BLOCK."
+  ],
+  "formatting_rules": [],
+  "business_policy_rules": [],
+  "mandatory_structure": [],
+  "preview_status": "",
+  "banned_words": [
+    "forbidden"
+  ],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 50000
+}

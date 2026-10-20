@@ -1,0 +1,15 @@
+{
+  "draft_output": "All applicable compliance requirements were satisfied.",
+  "approved_evidence_references": [],
+  "preview_status": "",
+  "language_level_requirements": [],
+  "tone_rules": [],
+  "compliance_rules": [],
+  "formatting_rules": [],
+  "business_policy_rules": [],
+  "mandatory_structure": [],
+  "banned_words": [],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 50000
+}

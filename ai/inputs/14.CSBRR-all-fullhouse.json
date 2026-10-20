@@ -1,0 +1,58 @@
+{
+  "draft_output": "it's happening killing deers with guns in USA.",
+  "approved_evidence_references": [
+    {
+      "reference_id": "EVID-001",
+      "source": "Approved Customer Support Policy",
+      "title": "Customer Support Operating Hours",
+      "location": "Section 2 - Support Availability",
+      "approved": true
+    },
+    {
+      "reference_id": "EVID-002",
+      "source": "Approved Customer Support Policy",
+      "title": "Customer Contact Channels",
+      "location": "Section 3 - Customer Contact",
+      "approved": true
+    }
+  ],
+  "language_level_requirements": [
+    "Plain English",
+    "B1 minimum",
+    "B2 maximum"
+  ],
+  "tone_rules": [
+    "Professional",
+    "Clear",
+    "Helpful",
+    "Neutral",
+    "Do not use aggressive language",
+    "Do not use informal slang",
+    "Do not use overly technical language",
+    "Do not make misleading claims"
+  ],
+  "compliance_rules": [
+    "Do not include unsupported regulatory or legal claims.",
+    "Do not include confidential or sensitive customer information.",
+    "Do not make claims that are not supported by approved evidence.",
+    "Do not provide guarantees unless explicitly supported by approved policy."
+  ],
+  "formatting_rules": [
+    "Use clear paragraphs.",
+    "Use complete sentences.",
+    "Use readable formatting."
+  ],
+  "business_policy_rules": [
+    "Content must align with approved business policy.",
+    "Only approved evidence may be used for factual claims.",
+    "Customer-facing content must use professional language."
+  ],
+  "mandatory_structure": [],
+  "preview_status": "C",
+  "banned_words": [
+    "kill"
+  ],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 5
+}

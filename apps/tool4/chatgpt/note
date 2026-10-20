@@ -1,0 +1,617 @@
+1. a fastapi app can submit the json content and upload a json file to reach an azure ML endpoint for the results
+2. see the attahed index.html for example
+3. parsing the returned json output results
+4. create a page to submit the json file for test cases
+5. present all the results
+6. present the outcome lables with cards nicely
+7. present the outcome trace with cards and connections nicely
+
+├── app.py
+├── requirements.txt
+├── static
+│   └── style.css
+└── templates
+    └── index.html
+
+cat app.py
+import os
+import json
+
+import httpx
+
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+
+# ============================================================
+# CONFIGURATION
+# ============================================================
+
+TOOL4_ENDPOINT = os.getenv("EP_API")
+
+EP_KEY = os.getenv("EP_KEY")
+
+MODEL_DEPLOYMENT = os.getenv("ML_DEP")
+
+
+# ============================================================
+# FASTAPI APPLICATION
+# ============================================================
+
+app = FastAPI(
+    title="Tool4 Validation Web App",
+    description="Web interface for Tool4 validation",
+    version="1.0.0",
+)
+
+
+# ============================================================
+# STATIC FILES
+# ============================================================
+
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static",
+)
+
+
+# ============================================================
+# TEMPLATES
+# ============================================================
+
+templates = Jinja2Templates(
+    directory="templates"
+)
+
+
+# ============================================================
+# HEALTH CHECK
+# ============================================================
+
+@app.get("/health")
+async def health():
+    return {
+        "status": "ok",
+        "tool4_endpoint": TOOL4_ENDPOINT,
+        "model_deployment": MODEL_DEPLOYMENT,
+        "ep_key_configured": bool(EP_KEY),
+    }
+
+
+# ============================================================
+# HOME PAGE
+# ============================================================
+
+@app.get(
+    "/",
+    response_class=HTMLResponse,
+)
+async def home(request: Request):
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+        },
+    )
+
+
+# ============================================================
+# TOOL4 VALIDATION
+# ============================================================
+
+@app.post("/validate")
+async def validate_tool4(request: Request):
+
+    # --------------------------------------------------------
+    # Check EP_KEY
+    # --------------------------------------------------------
+
+    if not EP_KEY:
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "detail":
+                    "EP_KEY environment variable is not configured."
+            },
+        )
+
+
+    # --------------------------------------------------------
+    # Read request body
+    # --------------------------------------------------------
+
+    try:
+
+        payload = await request.json()
+
+    except Exception as exc:
+
+        return JSONResponse(
+            status_code=400,
+            content={
+                "detail":
+                    f"Invalid JSON request: {str(exc)}"
+            },
+        )
+
+
+    # --------------------------------------------------------
+    # Validate that payload is an object
+    # --------------------------------------------------------
+
+    if not isinstance(payload, dict):
+
+        return JSONResponse(
+            status_code=400,
+            content={
+                "detail":
+                    "Request body must be a JSON object."
+            },
+        )
+
+
+    # --------------------------------------------------------
+    # Headers
+    #
+    # Equivalent to:
+    #
+    # curl -s -X POST \
+    #   "https://.../score" \
+    #   -H "Content-Type: application/json" \
+    #   -H "Authorization: Bearer $EP_KEY" \
+    #   -H "azureml-model-deployment: red" \
+    #   -d @jsonfile.json
+    # --------------------------------------------------------
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {EP_KEY}",
+        "azureml-model-deployment": MODEL_DEPLOYMENT,
+    }
+
+
+    # --------------------------------------------------------
+    # Call Tool4 Azure ML endpoint
+    # --------------------------------------------------------
+
+    try:
+
+        async with httpx.AsyncClient(
+            timeout=httpx.Timeout(
+                connect=30.0,
+                read=180.0,
+                write=30.0,
+                pool=30.0,
+            )
+        ) as client:
+
+            response = await client.post(
+                TOOL4_ENDPOINT,
+                headers=headers,
+                json=payload,
+            )
+
+
+    except httpx.TimeoutException:
+
+        return JSONResponse(
+            status_code=504,
+            content={
+                "detail":
+                    "Tool4 endpoint request timed out."
+            },
+        )
+
+
+    except httpx.RequestError as exc:
+
+        return JSONResponse(
+            status_code=502,
+            content={
+                "detail":
+                    f"Unable to connect to Tool4 endpoint: {str(exc)}"
+            },
+        )
+
+
+    # --------------------------------------------------------
+    # Process Tool4 response
+    # --------------------------------------------------------
+
+    content_type = response.headers.get(
+        "content-type",
+        ""
+    ).lower()
+
+
+    # --------------------------------------------------------
+    # JSON response
+    # --------------------------------------------------------
+
+    if "application/json" in content_type:
+
+        try:
+
+            tool4_result = response.json()
+
+        except json.JSONDecodeError:
+
+            return JSONResponse(
+                status_code=502,
+                content={
+                    "detail":
+                        "Tool4 returned invalid JSON.",
+                    "status_code":
+                        response.status_code,
+                    "raw_response":
+                        response.text,
+                },
+            )
+
+
+    # --------------------------------------------------------
+    # Non-JSON response
+    # --------------------------------------------------------
+
+    else:
+
+        if response.is_error:
+
+            return JSONResponse(
+                status_code=502,
+                content={
+                    "detail":
+                        "Tool4 endpoint returned a non-JSON error response.",
+                    "status_code":
+                        response.status_code,
+                    "raw_response":
+                        response.text,
+                },
+            )
+
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "tool4_response":
+                    response.text
+            },
+        )
+
+
+    # --------------------------------------------------------
+    # Tool4 HTTP error
+    # --------------------------------------------------------
+
+    if response.is_error:
+
+        return JSONResponse(
+            status_code=response.status_code,
+            content={
+                "detail":
+                    "Tool4 validation endpoint returned an error.",
+                "tool4_status_code":
+                    response.status_code,
+                "tool4_response":
+                    tool4_result,
+            },
+        )
+
+
+    # --------------------------------------------------------
+    # Successful Tool4 response
+    #
+    # Return the response as-is.
+    #
+    # This preserves:
+    #
+    # decision
+    # decision_result
+    # validation_output
+    # validation_fail_report
+    # outcome_trace
+    # node_outcomes
+    # quality_scores
+    # compliance_findings
+    # evidence_grounding_findings
+    # etc.
+    # --------------------------------------------------------
+
+    return JSONResponse(
+        status_code=200,
+        content=tool4_result,
+    )
+
+
+# ============================================================
+# STARTUP INFORMATION
+# ============================================================
+
+@app.on_event("startup")
+async def startup_event():
+
+    print("")
+    print("=" * 70)
+    print("Tool4 Validation Web App")
+    print("=" * 70)
+    print(
+        f"Tool4 endpoint : {TOOL4_ENDPOINT}"
+    )
+    print(
+        f"Model deployment: {MODEL_DEPLOYMENT}"
+    )
+    print(
+        f"EP_KEY configured: {bool(EP_KEY)}"
+    )
+    print("=" * 70)
+    print("")
+
+
+i need you to create the index.html in the templates directory to submit the json input and  parsing the results to show all the details on a page 
+
+json input:
+{
+  "draft_output": "Our customer support team is available Monday to Friday from 9:00 a.m. to 5:00 p.m. Customers can contact the support team through the approved support channel for help with account and product questions. Response times may vary depending on the complexity of the request.",
+"approved_evidence_references": [
+    {
+      "id": "EVID-001",
+      "description": "Customer support is available Monday to Friday from 9:00 a.m. to 5:00 p.m.",
+      "approved": true
+    },
+    {
+      "id": "EVID-002",
+      "description": "Customers can contact the support team through the approved support channel.",
+      "approved": true
+    },
+    {
+      "id": "EVID-003",
+      "description": "Customer support response times may vary depending on the complexity of the request.",
+      "approved": true
+    },
+    {
+      "id": "EVID-004",
+      "description": "The support team can assist customers with account-related questions.",
+      "approved": true
+    },
+    {
+      "id": "EVID-005",
+      "description": "The support team can assist customers with supported product questions.",
+      "approved": true
+    },
+    {
+      "id": "EVID-006",
+      "description": "Customer-facing communications must use clear, professional, and helpful language.",
+      "approved": true
+    }
+  ],
+  "language_level_requirements": [
+    "Plain English",
+    "B1 minimum",
+    "B2 maximum"
+  ],
+  "tone_rules": [
+    "Professional",
+    "Clear",
+    "Helpful",
+    "Neutral",
+    "Do not use aggressive language",
+    "Do not use informal slang",
+    "Do not use overly technical language",
+    "Do not make misleading claims"
+  ],
+  "compliance_rules": [
+    "Do not include unsupported regulatory or legal claims.",
+    "Do not include confidential or sensitive customer information.",
+    "Do not make claims that are not supported by approved evidence.",
+    "Do not provide guarantees unless explicitly supported by approved policy."
+  ],
+  "formatting_rules": [
+    "Use clear paragraphs.",
+    "Use complete sentences.",
+    "Use readable formatting."
+  ],
+  "business_policy_rules": [
+    "Content must align with approved business policy.",
+    "Only approved evidence may be used for factual claims.",
+    "Customer-facing content must use professional language."
+  ],
+  "mandatory_structure": [],
+  "preview_status": "C",
+  "banned_words": [],
+  "regex_patterns": [],
+  "min_length": 10,
+  "max_length": 50000
+}
+
+results:
+{
+    "draft": "Our customer support team is available Monday to Friday from 9:00 a.m. to 5:00 p.m. Customers can contact the support team through the approved support channel for help with account and product questions. Response times may vary depending on the complexity of the request.",
+    "decision": "P",
+    "description": "PASS — All executed validation nodes completed successfully, with no failures or exceptions detected.",
+    "inputs_validator": {
+        "outcome": "C",
+        "route": "CONFIGURABLE_RULES",
+        "human_review_required": false,
+        "initial_submission": false,
+        "skip_fast": true,
+        "reason": "Clear from Pre-Validation Human Review cleared the input. Skip Fast Rule Validator."
+    },
+    "fast_rule_validator": {
+        "outcome": "S",
+        "findings": [],
+        "warnings": [],
+        "reason": "SKIP - Clear from Pre-Validation Human Review cleared the input. Skip Fast Rule Validator.",
+        "skipped": true,
+        "hard_stop": false,
+        "upstream_outcome": "C"
+    },
+    "configurable_rule_validator": {
+        "outcome": "P",
+        "findings": [],
+        "warnings": [],
+        "reason": "Configurable rule validation completed.",
+        "skipped": false,
+        "hard_stop": false
+    },
+    "unified_llm_result": {
+        "outcome": "P",
+        "decision_hint": "P",
+        "reason": "PASS — LLM validation completed successfully.",
+        "findings": [],
+        "cefr_level": "B2",
+        "language_match": true,
+        "compliance": {
+            "score": 4,
+            "mandatory_violation": false,
+            "findings": []
+        },
+        "grounding": {
+            "unsupported_claims": [],
+            "missing_or_invalid_references": [],
+            "findings": []
+        },
+        "quality_scores": {
+            "grammar_and_tone": 4,
+            "language_level_readability": 4,
+            "completeness": 4,
+            "quality_and_logic": 4,
+            "total_score": 16,
+            "maximum_score": 16,
+            "percentage": 100.0,
+            "grammar_and_tone_percentage": 100.0,
+            "language_level_readability_percentage": 100.0,
+            "completeness_percentage": 100.0,
+            "quality_and_logic_percentage": 100.0
+        },
+        "suggested_edits": [],
+        "proposed_final_draft": "",
+        "final_permitted_draft": "",
+        "approved_evidence_references": [
+            {
+                "id": "EVID-001",
+                "description": "Customer support is available Monday to Friday from 9:00 a.m. to 5:00 p.m.",
+                "approved": true
+            },
+            {
+                "id": "EVID-002",
+                "description": "Customers can contact the support team through the approved support channel.",
+                "approved": true
+            },
+            {
+                "id": "EVID-003",
+                "description": "Customer support response times may vary depending on the complexity of the request.",
+                "approved": true
+            },
+            {
+                "id": "EVID-004",
+                "description": "The support team can assist customers with account-related questions.",
+                "approved": true
+            },
+            {
+                "id": "EVID-005",
+                "description": "The support team can assist customers with supported product questions.",
+                "approved": true
+            },
+            {
+                "id": "EVID-006",
+                "description": "Customer-facing communications must use clear, professional, and helpful language.",
+                "approved": true
+            }
+        ],
+        "evidence_count": 6,
+        "compliance_rule_count": 4,
+        "skipped": false
+    },
+    "decision_router_result": {
+        "outcome": "P",
+        "node_outcomes": {
+            "inputs_validator": "C",
+            "fast_rule_validator": "S",
+            "configurable_rules": "P",
+            "unified_llm_validator": "P"
+        },
+        "active": [
+            "C",
+            "S",
+            "P",
+            "P"
+        ],
+        "decision": "P",
+        "reason": "PASS — All executed validation nodes completed successfully, with no failures or exceptions detected."
+    },
+    "tool4_validation_output": {
+        "decision": "P",
+        "validation_result": {
+            "decision": "P",
+            "fast_outcome": "S",
+            "configurable_outcome": "P",
+            "llm_outcome": "P"
+        },
+        "rule_findings": [],
+        "llm_validation_findings": [],
+        "quality_scores": {
+            "grammar_and_tone": 4,
+            "grammar_and_tone_percentage": 100.0,
+            "language_level_readability": 4,
+            "language_level_readability_percentage": 100.0,
+            "completeness": 4,
+            "completeness_percentage": 100.0,
+            "quality_and_logic": 4,
+            "quality_and_logic_percentage": 100.0,
+            "total_score": 16,
+            "maximum_score": 16,
+            "percentage": 100.0
+        },
+        "quality_percentage": 100.0,
+        "compliance_findings": {
+            "score": 4,
+            "mandatory_violation": false,
+            "findings": []
+        },
+        "evidence_grounding_findings": {
+            "unsupported_claims": [],
+            "missing_or_invalid_references": [],
+            "findings": []
+        },
+        "warnings": [],
+        "decision_reason": "PASS — All executed validation nodes completed successfully, with no failures or exceptions detected.",
+        "suggested_edits": [],
+        "proposed_final_draft": "",
+        "final_permitted_draft": "Our customer support team is available Monday to Friday from 9:00 a.m. to 5:00 p.m. Customers can contact the support team through the approved support channel for help with account and product questions. Response times may vary depending on the complexity of the request.",
+        "outcome_trace": {
+            "outcomes": [
+                "C",
+                "S",
+                "P",
+                "P",
+                "P"
+            ],
+            "node_outcomes": {
+                "inputs_validator": "C",
+                "fast_rule_validator": "S",
+                "configurable_rules": "P",
+                "unified_llm_validator": "P",
+                "decision_router": "P"
+            },
+            "node_outcome_labels": {
+                "inputs_validator": "CLEAR",
+                "fast_rule_validator": "SKIPPED",
+                "configurable_rules": "PASS",
+                "unified_llm_validator": "PASS",
+                "decision_router": "PASS"
+            },
+            "final_outcome": "P",
+            "final_label": "PASS"
+        },
+        "status": "Awaiting for approval",
+        "preview_outcome": "C",
+        "awaiting_pre_validation": false
+    },
+    "validation_fail_report": null
+}
+

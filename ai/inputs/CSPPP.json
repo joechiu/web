@@ -1,0 +1,21 @@
+{
+  "draft_output": "Executive Summary\n\nThe scheduled review was completed successfully.\n\nValidation Findings\n\nThe review findings are documented.\n\nConclusion\n\nThe review has been completed successfully.",
+  "approved_evidence_references": [
+    "The scheduled review was completed successfully."
+  ],
+  "language_level_requirements": ["Plain English"],
+  "tone_rules": [],
+  "compliance_rules": [],
+  "formatting_rules": [],
+  "business_policy_rules": [],
+  "mandatory_structure": [
+    "Executive Summary",
+    "Validation Findings",
+    "Conclusion"
+  ],
+  "preview_status": "C",
+  "banned_words": [],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 50000
+}

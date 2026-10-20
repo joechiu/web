@@ -1,0 +1,56 @@
+{
+  "draft_output": "Nuestro equipo de atención al cliente está disponible de lunes a viernes, de 9:00 a. m. a 5:00 p. m. Los clientes pueden contactar al equipo de atención al cliente a través del canal de soporte aprobado para recibir ayuda con preguntas sobre su cuenta y nuestros productos. El tiempo de respuesta puede variar según la complejidad de la solicitud.",
+  "approved_evidence_references": [
+    {
+      "reference_id": "EVID-001",
+      "source": "Approved Customer Support Policy",
+      "title": "Customer Support Operating Hours",
+      "location": "Section 2 - Support Availability",
+      "approved": true
+    },
+    {
+      "reference_id": "EVID-002",
+      "source": "Approved Customer Support Policy",
+      "title": "Customer Contact Channels",
+      "location": "Section 3 - Customer Contact",
+      "approved": true
+    }
+  ],
+  "language_level_requirements": [
+    "Plain English",
+    "B1 minimum",
+    "B2 maximum"
+  ],
+  "tone_rules": [
+    "Professional",
+    "Clear",
+    "Helpful",
+    "Neutral",
+    "Do not use aggressive language",
+    "Do not use informal slang",
+    "Do not use overly technical language",
+    "Do not make misleading claims"
+  ],
+  "compliance_rules": [
+    "Do not include unsupported regulatory or legal claims.",
+    "Do not include confidential or sensitive customer information.",
+    "Do not make claims that are not supported by approved evidence.",
+    "Do not provide guarantees unless explicitly supported by approved policy."
+  ],
+  "formatting_rules": [
+    "Use clear paragraphs.",
+    "Use complete sentences.",
+    "Use readable formatting."
+  ],
+  "business_policy_rules": [
+    "Content must align with approved business policy.",
+    "Only approved evidence may be used for factual claims.",
+    "Customer-facing content must use professional language."
+  ],
+  "mandatory_structure": [],
+  "preview_status": "",
+  "banned_words": [],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 50000
+}

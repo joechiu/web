@@ -1,0 +1,30 @@
+dag:
+  name: "{{ dag.name }}"
+
+  settings:
+    max_parallel_nodes: {{ dag.settings.max_parallel_nodes }}
+    default_max_output_tokens: {{ dag.settings.default_max_output_tokens }}
+    default_temperature: {{ dag.settings.default_temperature }}
+    retry_internal_errors: {{ dag.settings.retry_internal_errors }}
+    retry_unavailable: {{ dag.settings.retry_unavailable }}
+    retry_delay_seconds: {{ dag.settings.retry_delay_seconds }}
+
+  nodes:
+{% for node in dag.nodes %}
+    - name: "{{ node.name }}"
+      depends_on:
+{% if node.depends_on %}
+{% for dependency in node.depends_on %}
+        - "{{ dependency }}"
+{% endfor %}
+{% else %}
+        []
+{% endif %}
+      model: "{{ node.model }}"
+      max_output_tokens: {{ node.max_output_tokens }}
+      prompt: |
+{% for line in node.prompt.splitlines() %}
+        {{ line }}
+{% endfor %}
+{% endfor %}
+

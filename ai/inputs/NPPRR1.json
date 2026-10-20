@@ -1,0 +1,34 @@
+{
+  "draft_output": "Executive Summary\n\nThe scheduled review was completed successfully.\n\nValidation Findings\n\nThe approved evidence confirms that the scheduled review was completed. All applicable compliance requirements were satisfied.\n\nConclusion\n\nThe review has been completed and all applicable compliance requirements were satisfied.",
+  "approved_evidence_references": [
+    "The scheduled review was completed successfully.",
+    "The available evidence does not confirm compliance with all applicable compliance requirements."
+  ],
+  "language_level_requirements": ["B2"],
+  "tone_rules": [
+    "Professional",
+    "Clear"
+  ],
+  "compliance_rules": [
+    "Claims of compliance must be supported by approved evidence."
+  ],
+  "formatting_rules": [
+    "Use clear paragraphs."
+  ],
+  "business_policy_rules": [
+    "Do not make unsupported business claims."
+  ],
+  "mandatory_structure": [
+    "Executive Summary",
+    "Validation Findings",
+    "Conclusion"
+  ],
+  "preview_status": "",
+  "warning_conditions": [
+    "scheduled review"
+  ],
+  "banned_words": [],
+  "regex_patterns": [],
+  "min_length": 1,
+  "max_length": 50000
+}

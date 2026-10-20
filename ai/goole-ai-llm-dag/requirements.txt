@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+google-genai
+jinja2
+pyyaml
+python-dotenv
+
